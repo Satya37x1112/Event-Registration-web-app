@@ -93,38 +93,56 @@ def init_db():
 def migrate_add_registration_token():
     """
     Database Migration: Add registration_token column if it doesn't exist.
-    This handles the case where the database was created before the token feature.
-    Also generates tokens for any existing events that don't have one.
+    
+    WHY THIS IS NEEDED:
+    - SQLite's CREATE TABLE IF NOT EXISTS doesn't update existing tables
+    - If the database was created before the token feature was added,
+      the EVENTS table won't have the registration_token column
+    - This migration adds the column safely to existing databases
+    
+    WHEN IT RUNS:
+    - Every time the app starts
+    - Only modifies the database if the column is missing
     """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Check if registration_token column exists in EVENTS table
-    cursor.execute("PRAGMA table_info(EVENTS)")
-    columns = [column[1] for column in cursor.fetchall()]
-    
-    if 'registration_token' not in columns:
-        # Column doesn't exist - add it WITHOUT UNIQUE constraint first
-        # (SQLite doesn't allow adding UNIQUE columns to tables with existing data)
-        print("⚙ Migrating database: Adding registration_token column...")
-        cursor.execute('ALTER TABLE EVENTS ADD COLUMN registration_token TEXT')
-        conn.commit()
-        print("✓ Column added successfully.")
-    
-    # Generate tokens for any events that don't have one (NULL or empty)
-    cursor.execute('SELECT id FROM EVENTS WHERE registration_token IS NULL OR registration_token = ""')
-    events_without_tokens = cursor.fetchall()
-    
-    for event in events_without_tokens:
-        new_token = generate_registration_token()
-        cursor.execute('UPDATE EVENTS SET registration_token = ? WHERE id = ?', (new_token, event['id']))
-        print(f"⚙ Generated token for event ID {event['id']}")
-    
-    if events_without_tokens:
-        conn.commit()
-        print(f"✓ Generated tokens for {len(events_without_tokens)} existing event(s).")
-    
-    conn.close()
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Check if registration_token column exists in EVENTS table
+        # PRAGMA table_info returns info about each column in the table
+        cursor.execute("PRAGMA table_info(EVENTS)")
+        columns = [column[1] for column in cursor.fetchall()]
+        
+        if 'registration_token' not in columns:
+            # Column doesn't exist - add it
+            # NOTE: SQLite doesn't support adding UNIQUE columns to existing tables
+            # with data, so we add it without the UNIQUE constraint
+            print("⚙️ Migrating database: Adding registration_token column...")
+            cursor.execute('ALTER TABLE EVENTS ADD COLUMN registration_token TEXT')
+            conn.commit()
+            print("✅ Column added successfully.")
+        
+        # Generate tokens for any events that don't have one (NULL or empty)
+        # This handles old events created before the token feature
+        cursor.execute('SELECT id FROM EVENTS WHERE registration_token IS NULL OR registration_token = ""')
+        events_without_tokens = cursor.fetchall()
+        
+        for event in events_without_tokens:
+            new_token = generate_registration_token()
+            cursor.execute('UPDATE EVENTS SET registration_token = ? WHERE id = ?', (new_token, event['id']))
+            print(f"⚙️ Generated token for event ID {event['id']}")
+        
+        if events_without_tokens:
+            conn.commit()
+            print(f"✅ Generated tokens for {len(events_without_tokens)} existing event(s).")
+        
+    except sqlite3.Error as e:
+        print(f"⚠️ Migration error (non-fatal): {e}")
+        # Don't crash - the app can still work for new events
+    finally:
+        if conn:
+            conn.close()
 
 
 def generate_registration_token():
@@ -333,10 +351,25 @@ def create_event():
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO EVENTS (name, description, date, registration_token)
-                VALUES (?, ?, ?, ?)
-            ''', (name, description, date, registration_token))
+            
+            # Try inserting with registration_token first (normal case)
+            try:
+                cursor.execute('''
+                    INSERT INTO EVENTS (name, description, date, registration_token)
+                    VALUES (?, ?, ?, ?)
+                ''', (name, description, date, registration_token))
+            except sqlite3.OperationalError as col_err:
+                # Fallback: If registration_token column doesn't exist,
+                # insert without it (migration will add token later)
+                if 'registration_token' in str(col_err):
+                    print(f"⚠️ Fallback: Inserting event without token (migration pending)")
+                    cursor.execute('''
+                        INSERT INTO EVENTS (name, description, date)
+                        VALUES (?, ?, ?)
+                    ''', (name, description, date))
+                else:
+                    raise  # Re-raise if it's a different error
+            
             conn.commit()
             conn.close()
             

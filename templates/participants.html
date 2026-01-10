@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Participants - {{ event.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card participants-card">
+        <!-- Event Header -->
+        <div class="card-header">
+            <a href="{{ url_for('dashboard') }}" class="back-link">← Back to Dashboard</a>
+            <h2>{{ event.name }}</h2>
+            <p class="card-subtitle">
+                {{ event.description if event.description else 'No description' }}
+            </p>
+            <span class="event-date-badge">📅 {{ event.date }}</span>
+        </div>
+
+        <!-- Registration Link Section -->
+        <div class="registration-link-banner">
+            <div class="link-info">
+                <strong>📋 Share this registration link with participants:</strong>
+            </div>
+            <div class="link-display">
+                <input 
+                    type="text" 
+                    class="link-input-full" 
+                    value="{{ registration_url }}" 
+                    readonly
+                    onclick="this.select()"
+                >
+                <button 
+                    class="btn btn-copy-large" 
+                    onclick="navigator.clipboard.writeText('{{ registration_url }}'); this.textContent='✓ Copied!'; setTimeout(() => this.textContent='Copy Link', 2000);">
+                    Copy Link
+                </button>
+            </div>
+        </div>
+
+        <!-- Actions Bar -->
+        <div class="actions-bar">
+            <a href="{{ registration_url }}" target="_blank" class="btn btn-secondary">
+                Preview Registration Form
+            </a>
+            
+            <!-- Search Form -->
+            <form action="{{ url_for('view_participants', event_id=event.id) }}" method="GET" class="search-form">
+                <input 
+                    type="text" 
+                    name="search" 
+                    class="search-input"
+                    placeholder="Search by name or email..."
+                    value="{{ search_query }}"
+                >
+                <button type="submit" class="btn btn-search">Search</button>
+                {% if search_query %}
+                    <a href="{{ url_for('view_participants', event_id=event.id) }}" class="btn btn-secondary">Clear</a>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Participants Table -->
+        <div class="table-wrapper">
+            {% if participants %}
+                <table class="participants-table">
+                    <thead>
+                        <tr>
+                            <th class="col-id">#</th>
+                            <th class="col-name">Name</th>
+                            <th class="col-email">Email</th>
+                            <th class="col-college">College / Organization</th>
+                            <th class="col-date">Registered</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for participant in participants %}
+                            <tr>
+                                <td class="col-id">{{ loop.index }}</td>
+                                <td class="col-name">{{ participant['name'] }}</td>
+                                <td class="col-email">{{ participant['email'] }}</td>
+                                <td class="col-college">{{ participant['college'] }}</td>
+                                <td class="col-date">
+                                    {% if participant['registered_at'] %}
+                                        {{ participant['registered_at'].split(' ')[0] }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td class="col-actions">
+                                    <form action="{{ url_for('delete_participant', event_id=event.id, participant_id=participant['id']) }}" method="POST" class="inline-form" onsubmit="return confirm('Remove this participant?');">
+                                        <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="table-footer">
+                    <p>
+                        Showing <strong>{{ participant_count }}</strong> 
+                        {% if search_query %}
+                            result{% if participant_count != 1 %}s{% endif %} for "{{ search_query }}"
+                        {% else %}
+                            participant{% if participant_count != 1 %}s{% endif %}
+                        {% endif %}
+                    </p>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">👥</div>
+                    <h3>No Participants Yet</h3>
+                    {% if search_query %}
+                        <p>No participants match your search for "<strong>{{ search_query }}</strong>".</p>
+                        <a href="{{ url_for('view_participants', event_id=event.id) }}" class="btn btn-secondary">Clear Search</a>
+                    {% else %}
+                        <p>Share the registration link above to start receiving participants.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

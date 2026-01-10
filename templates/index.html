@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Participant Registration System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card register-card">
+        <div class="card-header">
+            <h2>Register as a Participant</h2>
+            <p class="card-subtitle">Fill in your details below to register</p>
+        </div>
+
+        <form action="{{ url_for('register') }}" method="POST" class="registration-form">
+            <!-- Name Field -->
+            <div class="form-group">
+                <label for="name" class="form-label">Full Name *</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    class="form-control"
+                    placeholder="e.g., John Doe"
+                    minlength="2"
+                    maxlength="100"
+                    required
+                >
+                <small class="form-hint">Minimum 2 characters</small>
+            </div>
+
+            <!-- Email Field -->
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address *</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-control"
+                    placeholder="e.g., john@example.com"
+                    required
+                >
+                <small class="form-hint">Must be a valid email address</small>
+            </div>
+
+            <!-- College/Organization Field -->
+            <div class="form-group">
+                <label for="college" class="form-label">College / Organization *</label>
+                <input 
+                    type="text" 
+                    id="college" 
+                    name="college" 
+                    class="form-control"
+                    placeholder="e.g., XYZ University"
+                    minlength="2"
+                    maxlength="100"
+                    required
+                >
+                <small class="form-hint">Minimum 2 characters</small>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary btn-block">
+                Register Now
+            </button>
+        </form>
+
+        <div class="card-footer">
+            <p>Already registered? <a href="{{ url_for('participants') }}" class="text-link">View all participants</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

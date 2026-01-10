@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Create Event - IIC Event Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card form-card">
+        <div class="card-header">
+            <a href="{{ url_for('dashboard') }}" class="back-link">← Back to Dashboard</a>
+            <h2>Create New Event</h2>
+            <p class="card-subtitle">Fill in the details to create a new event</p>
+        </div>
+
+        <form action="{{ url_for('create_event') }}" method="POST" class="event-form">
+            <!-- Event Name -->
+            <div class="form-group">
+                <label for="name" class="form-label">Event Name *</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    class="form-control"
+                    placeholder="e.g., IIC Innovation Summit 2026"
+                    minlength="3"
+                    maxlength="150"
+                    required
+                    autofocus
+                >
+                <small class="form-hint">Minimum 3 characters</small>
+            </div>
+
+            <!-- Event Description -->
+            <div class="form-group">
+                <label for="description" class="form-label">Description</label>
+                <textarea 
+                    id="description" 
+                    name="description" 
+                    class="form-control form-textarea"
+                    placeholder="Describe the event details, objectives, and any important information..."
+                    rows="4"
+                    maxlength="500"
+                ></textarea>
+                <small class="form-hint">Optional - Maximum 500 characters</small>
+            </div>
+
+            <!-- Event Date -->
+            <div class="form-group">
+                <label for="date" class="form-label">Event Date *</label>
+                <input 
+                    type="date" 
+                    id="date" 
+                    name="date" 
+                    class="form-control"
+                    required
+                >
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    Create Event
+                </button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

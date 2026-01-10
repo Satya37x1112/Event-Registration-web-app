@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Event Management System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <a href="{{ url_for('dashboard') if session.get('admin_logged_in') else url_for('login') }}">
+                        <h1>🎓 IIC Event Manager</h1>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    {% if session.get('admin_logged_in') %}
+                        <li><a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a></li>
+                        <li><a href="{{ url_for('create_event') }}" class="nav-link {% if request.endpoint == 'create_event' %}active{% endif %}">Create Event</a></li>
+                        <li><a href="{{ url_for('logout') }}" class="nav-link nav-link-logout">Logout</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}" class="nav-link {% if request.endpoint == 'login' %}active{% endif %}">Login</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alerts-container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <span class="alert-message">{{ message }}</span>
+                            <button class="alert-close" onclick="this.parentElement.style.display='none';">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 IIC Event Management System. Built with Flask & SQLite.</p>
+        {% if session.get('admin_logged_in') %}
+            <p class="footer-user">Logged in as: <strong>{{ session.get('admin_username', 'Admin') }}</strong></p>
+        {% endif %}
+    </footer>
+</body>
+</html>

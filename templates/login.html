@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login - IIC Event Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card login-card">
+        <div class="card-header text-center">
+            <div class="login-icon">🔐</div>
+            <h2>Admin Login</h2>
+            <p class="card-subtitle">Sign in to manage events and participants</p>
+        </div>
+
+        <form action="{{ url_for('login') }}" method="POST" class="login-form">
+            <!-- Username Field -->
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    class="form-control"
+                    placeholder="Enter your username"
+                    autocomplete="username"
+                    required
+                    autofocus
+                >
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-control"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                >
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary btn-block">
+                Sign In
+            </button>
+        </form>
+
+        <div class="card-footer text-center">
+            <p class="text-muted">Protected admin area. Unauthorized access prohibited.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

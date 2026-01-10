@@ -52,17 +52,23 @@ def get_db_connection():
 
 def init_db():
     """Initialize the database with EVENTS and PARTICIPANTS tables."""
+    
+    # IMPORTANT: Run migration FIRST to add missing columns to existing tables
+    # This must happen before CREATE TABLE IF NOT EXISTS because that statement
+    # won't modify existing tables that are missing columns
+    migrate_add_registration_token()
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Create EVENTS table with registration token
+    # Create EVENTS table with registration token (only if table doesn't exist)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS EVENTS (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             description TEXT,
             date TEXT,
-            registration_token TEXT UNIQUE,
+            registration_token TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
@@ -84,9 +90,6 @@ def init_db():
     conn.commit()
     conn.close()
     
-    # Run migration to handle existing databases without registration_token column
-    migrate_add_registration_token()
-    
     print("✓ Database initialized successfully.")
 
 
@@ -101,13 +104,21 @@ def migrate_add_registration_token():
     - This migration adds the column safely to existing databases
     
     WHEN IT RUNS:
-    - Every time the app starts
-    - Only modifies the database if the column is missing
+    - Every time the app starts (before CREATE TABLE statements)
+    - Only modifies the database if the table exists AND column is missing
     """
     conn = None
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+        
+        # First, check if EVENTS table exists at all
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='EVENTS'")
+        if not cursor.fetchone():
+            # Table doesn't exist yet - nothing to migrate
+            # The CREATE TABLE statement will create it with the correct schema
+            conn.close()
+            return
         
         # Check if registration_token column exists in EVENTS table
         # PRAGMA table_info returns info about each column in the table

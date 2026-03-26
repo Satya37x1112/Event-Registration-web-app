@@ -16,7 +16,7 @@ A professional event-based participant registration system built with **Flask** 
 - Delete events and associated participants
 - Track participant count per event
 
-🔗 **Public Registration Links**
+**Public Registration Links**
 - Each event gets a unique, shareable registration URL
 - Participants register themselves (no login required)
 - Token-based link validation

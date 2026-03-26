@@ -4,7 +4,7 @@ A professional event-based participant registration system built with **Flask** 
 
 ## Features
 
-🔐 **Admin Authentication**
+**Admin Authentication**
 - Secure admin login with session management
 - Protected admin routes
 - Clean logout functionality

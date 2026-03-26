@@ -23,7 +23,7 @@ A professional event-based participant registration system built with **Flask** 
 - Professional registration forms
 - Success confirmation page
 
-👥 **Participant Management**
+**Participant Management**
 - View all participants per event
 - Search participants by name or email
 - Prevent duplicate email entries per event

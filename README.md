@@ -9,7 +9,7 @@ A professional event-based participant registration system built with **Flask** 
 - Protected admin routes
 - Clean logout functionality
 
-📅 **Event Management**
+**Event Management**
 - Create events with name, description, and date
 - Auto-generate unique registration links per event
 - View all events on admin dashboard

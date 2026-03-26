@@ -249,16 +249,6 @@ Your app will be live at: `https://iic-event-manager.onrender.com`
 - Training programs
 - Webinars and conferences
 - Any institutional event management
-
-## Features Highlights
-
-🎯 **One-Click Copy** - Copy registration links instantly  
-📊 **Real-time Stats** - Track participants as they register  
-🔍 **Search Functionality** - Find participants quickly  
-📱 **Mobile Responsive** - Works on all devices  
-✉️ **Email Validation** - Prevent invalid entries  
-🚫 **Duplicate Prevention** - One email per event  
-
 ---
 
 **Built with ❤️ for modern event management.**

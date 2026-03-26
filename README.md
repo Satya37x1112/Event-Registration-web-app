@@ -29,7 +29,7 @@ A professional event-based participant registration system built with **Flask** 
 - Prevent duplicate email entries per event
 - Admin-only participant access
 
-🎨 **Modern UI/UX**
+**Modern UI/UX**
 - Clean, professional interface
 - Card-based event display
 - Responsive design for all devices
